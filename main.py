@@ -1,7 +1,9 @@
 import logging
 from telethon.sync import TelegramClient, events
-from config import api_id, api_hash
+from telethon.sessions import StringSession
+from config import api_id, api_hash, session_string
 import asyncio
+
 
 FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.ERROR)
@@ -31,7 +33,9 @@ async def parse(message):
     return message.split(' ')[1:]
 
 
-with TelegramClient('acc', api_id, api_hash) as client:
+with TelegramClient(StringSession(session_string), api_id, api_hash) as client:
+    print(client.session.save())
+
     @client.on(events.NewMessage(pattern='^.member', outgoing=True))
     async def member_handler(message):
         await message.delete()
