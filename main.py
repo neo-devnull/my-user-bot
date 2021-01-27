@@ -34,7 +34,6 @@ async def parse(message):
 
 
 with TelegramClient(StringSession(session_string), api_id, api_hash) as client:
-    print(client.session.save())
 
     @client.on(events.NewMessage(pattern='^.member', outgoing=True))
     async def member_handler(message):
