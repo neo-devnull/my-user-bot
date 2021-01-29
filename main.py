@@ -16,6 +16,17 @@ async def get_participants(client, chat):
     return members
 
 
+async def delete_messages(client, chat, msgids):
+    print('running')
+    try:
+        await client.delete_messages(
+            chat,
+            message_ids=msgids
+        )
+    except Exception:
+        print("Exception occured during deleting message id")
+
+
 async def kick_user(client, chat, user):
     print(f"Kicking {user} from {chat}")
     try:
@@ -70,5 +81,19 @@ with TelegramClient(StringSession(session_string), api_id, api_hash) as client:
                 message.chat_id,
                 message=f"{message.chat_id} is the chat id"
             )
+
+    @client.on(events.NewMessage(pattern='^.purge', outgoing=True))
+    async def purge(message):
+        try:
+            limit = int(message.text.split(' ')[1])
+        except ValueError:
+            limit = 1
+        messages = await client.get_messages(message.chat_id, limit=limit)
+        ids = [msg.id for msg in messages]
+        await client.delete_messages(
+            message.chat_id,
+            message_ids=ids,
+            revoke=True
+        )
 
     client.run_until_disconnected()
